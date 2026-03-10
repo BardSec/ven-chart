@@ -33,65 +33,18 @@ A production-quality, dockerized web application for tracking vendors, contracts
 
 ---
 
-## Quick Start (Local Development)
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+
 - Docker and Docker Compose
 - A Microsoft Entra ID app registration (see below)
 
-### 1. Clone and install
-
-```bash
-git clone <repo>
-cd ven-chart
-npm install
-```
-
-### 2. Configure environment
-
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` with your values (see Configuration section below).
-
-### 3. Start the database
-
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
-
-This starts a local PostgreSQL instance on port 5432.
-
-### 4. Set up the database
-
-```bash
-# Run migrations
-npm run db:push
-
-# (Optional) Seed with sample data
-npm run db:seed
-```
-
-### 5. Start the app
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
----
-
-## Production Deployment with Docker
-
-### 1. Create your environment file
+### 1. Configure environment
 
 ```bash
 cp .env.example .env
-# Edit .env with all production values
+# Edit .env with your Azure AD credentials and other values
 ```
 
 ### 2. Build and start
@@ -100,20 +53,46 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-The app runs on port 3000 by default. Put it behind a reverse proxy (nginx, Traefik, Caddy) for HTTPS.
+That's it. The container will:
+1. Install dependencies
+2. Build the Next.js app
+3. Run `prisma db push` to create/sync the database schema
+4. Start the server on port 3000
 
-### 3. Run database migrations
-
-Migrations run automatically at container startup via `docker-entrypoint.sh`. To run manually:
+### 3. (Optional) Seed with sample data
 
 ```bash
-docker exec venchart_app npx prisma migrate deploy
+docker compose exec app npm run db:seed
 ```
 
-### 4. Optional: seed sample data
+### Local development (with hot reload)
+
+If you want to run Next.js locally with hot reload:
 
 ```bash
-docker exec venchart_app npm run db:seed
+npm install
+docker compose -f docker-compose.dev.yml up -d   # DB only
+npm run db:push                                   # Sync schema
+npm run dev                                       # Start dev server
+```
+
+---
+
+## Production Deployment
+
+```bash
+cp .env.example .env   # fill in all values
+docker compose up -d --build
+```
+
+The app runs on port 3000. Put it behind a reverse proxy (nginx, Traefik, Caddy) for HTTPS.
+
+Schema changes on redeploy are applied automatically at startup via `prisma db push`.
+
+### Seed sample data (first deploy only)
+
+```bash
+docker compose exec app npm run db:seed
 ```
 
 ---
