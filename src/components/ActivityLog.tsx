@@ -67,7 +67,7 @@ export function ActivityLog({ entries, className }: ActivityLogProps) {
               )}
 
               {/* Status change detail */}
-              {entry.action === 'status_changed' && entry.beforeState && entry.afterState && (
+              {entry.action === 'status_changed' && Boolean(entry.beforeState) && Boolean(entry.afterState) && (
                 <p className="mt-1 text-xs text-gray-600">
                   {(entry.beforeState as Record<string, unknown>).status as string} →{' '}
                   {(entry.afterState as Record<string, unknown>).status as string}
