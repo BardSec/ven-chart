@@ -139,7 +139,7 @@ async function main() {
         procurementNotes: 'Annual subscription. Per-building pricing. Coordinate with facilities and safety director.',
         supportContactName: 'Raptor Support',
         supportContactEmail: 'support@raptortech.com',
-        supportPhone: '800-555-0702',
+        supportContactPhone: '800-555-0702',
         supportWebsite: 'https://support.raptortech.com',
       },
     }),
