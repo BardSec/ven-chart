@@ -7,7 +7,8 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --frozen-lockfile
+# Use npm install if no lockfile exists, npm ci if one is present
+RUN if [ -f package-lock.json ]; then npm ci --frozen-lockfile; else npm install; fi
 
 # ── Stage 2: Build ───────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
