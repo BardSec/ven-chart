@@ -1,6 +1,7 @@
 // Activity log utility — records meaningful operational events
 
 import { prisma } from './prisma'
+import { Prisma } from '@prisma/client'
 import type { SessionUser } from './permissions'
 
 interface LogOptions {
@@ -28,9 +29,9 @@ export async function logActivity(opts: LogOptions): Promise<void> {
         userEmail: opts.user?.email,
         userName: opts.user?.name,
         action: opts.action,
-        beforeState: opts.beforeState ?? undefined,
-        afterState: opts.afterState ?? undefined,
-        metadata: opts.metadata ?? undefined,
+        beforeState: opts.beforeState as Prisma.InputJsonValue ?? undefined,
+        afterState: opts.afterState as Prisma.InputJsonValue ?? undefined,
+        metadata: opts.metadata as Prisma.InputJsonValue ?? undefined,
         vendorId: opts.vendorId,
         contractId: opts.contractId,
       },
