@@ -1,0 +1,242 @@
+// ven-chart Prisma Schema
+// Vendor and Contract Management for K12 School Districts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Auth Models (NextAuth.js)
+// =============================================================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// =============================================================================
+// User Model
+// =============================================================================
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+  DEPARTMENT_OWNER
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  image      String?
+  role       Role     @default(VIEWER)
+  department String?  // For DEPARTMENT_OWNER scoping
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  accounts     Account[]
+  sessions     Session[]
+  activityLogs ActivityLog[]
+}
+
+// =============================================================================
+// Vendor Model — Parent entity
+// =============================================================================
+
+model Vendor {
+  id String @id @default(cuid())
+
+  // Identity
+  name String
+
+  // Primary Contact
+  primaryContactName  String?
+  primaryContactEmail String?
+  primaryContactPhone String?
+
+  // General
+  generalNotes     String? @db.Text
+  tags             String[] // e.g. ["SIS", "HR", "Finance", "Student Data"]
+  procurementNotes String? @db.Text
+
+  // Support Contact
+  supportContactName  String?
+  supportContactEmail String?
+  supportContactPhone String?
+  supportWebsite      String?
+  supportNotes        String? @db.Text
+
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  contracts    Contract[]
+  attachments  Attachment[]
+  activityLogs ActivityLog[]
+}
+
+// =============================================================================
+// Contract / Subscription Model — Renewal-driving child entity
+// =============================================================================
+
+enum ContractStatus {
+  ACTIVE
+  UNDER_REVIEW
+  PENDING_RENEWAL
+  NON_RENEWING
+  EXPIRED
+  ARCHIVED
+}
+
+model Contract {
+  id       String @id @default(cuid())
+  vendorId String
+
+  // Identity
+  productName  String
+  description  String? @db.Text
+  contractType String? // "software_license" | "saas_subscription" | "professional_services" | "hardware_maintenance" | "support_only" | "other"
+
+  // Billing / Purchase Type
+  billingModel         String?  // "annual" | "monthly" | "multi_year" | "one_time"
+  isPerpetual          Boolean  @default(false)
+  isAnnual             Boolean  @default(false)
+  hasSupportAssurance  Boolean  @default(false)
+  isSubscription       Boolean  @default(false)
+
+  // Dates — the operational core
+  startDate        DateTime?
+  renewalDate      DateTime?
+  noticeDeadline   DateTime? // Required cancellation/notice date
+
+  // Renewal settings
+  autoRenew Boolean @default(false)
+
+  // Financial
+  cost               Decimal? @db.Decimal(12, 2)
+  totalContractValue Decimal? @db.Decimal(12, 2)
+  fundingSource      String?  // "General Fund" | "Title I" | "ESSER" | "E-Rate" | "Grant"
+  budgetCode         String?
+
+  // Procurement
+  procurementMethod String? // "bid" | "sole_source" | "cooperative_contract" | "piggyback" | "direct_purchase" | "state_contract"
+  poNumber          String?
+  invoiceReference  String?
+
+  // Ownership
+  internalOwner String?
+  backupOwner   String?
+  department    String? // "Technology" | "Curriculum" | "Finance" | "HR" | "Facilities" | etc.
+
+  // Lifecycle
+  status     ContractStatus @default(ACTIVE)
+  notes      String?        @db.Text
+  isArchived Boolean        @default(false)
+
+  // Compliance / Risk Snapshot
+  dataPrivacyAgreementOnFile   Boolean?
+  studentDataInvolved          Boolean?
+  securityReviewCompleted      Boolean?
+  lastSecurityReviewDate       DateTime?
+  soc2Available                Boolean?
+  ferpaCopaPrivacyNotes        String?  @db.Text
+  breachNotificationTermsNoted Boolean?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendor       Vendor       @relation(fields: [vendorId], references: [id])
+  attachments  Attachment[]
+  activityLogs ActivityLog[]
+}
+
+// =============================================================================
+// Attachments / Links
+// =============================================================================
+
+model Attachment {
+  id         String @id @default(cuid())
+  parentType String // "vendor" | "contract"
+  parentId   String
+  title      String
+  url        String
+
+  // File metadata (for future upload support)
+  fileName String?
+  fileSize Int?
+  mimeType String?
+
+  createdAt DateTime @default(now())
+
+  // Polymorphic via explicit FKs — keep both nullable
+  vendor     Vendor?   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId   String?
+  contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId String?
+}
+
+// =============================================================================
+// Activity Log / Audit Trail
+// =============================================================================
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  entityType String   // "vendor" | "contract" | "attachment" | "user" | "import" | "export"
+  entityId   String?
+  entityName String?  // Human-readable name snapshot for display
+  userId     String?
+  userEmail  String?  // Snapshot for display even if user is deleted
+  userName   String?
+  action     String   // "created" | "updated" | "deleted" | "archived" | "status_changed" | "imported" | "exported"
+  beforeState Json?
+  afterState  Json?
+  metadata    Json?   // Extra context (e.g., import stats, changed fields list)
+  timestamp   DateTime @default(now())
+
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  vendor     Vendor?   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId   String?
+  contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId String?
+
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([userId])
+}

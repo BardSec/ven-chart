@@ -1,0 +1,72 @@
+version: '3.9'
+
+# ven-chart Docker Compose
+# Production-ready compose configuration
+# For local dev, see README.md
+
+services:
+  # ── PostgreSQL database ────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: venchart_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-venchart}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-venchart_password}
+      POSTGRES_DB: ${POSTGRES_DB:-venchart_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-venchart} -d ${POSTGRES_DB:-venchart_db}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Next.js application ────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: venchart_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-venchart}:${POSTGRES_PASSWORD:-venchart_password}@db:5432/${POSTGRES_DB:-venchart_db}
+
+      # NextAuth
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+
+      # Microsoft Entra ID
+      AZURE_AD_CLIENT_ID: ${AZURE_AD_CLIENT_ID}
+      AZURE_AD_CLIENT_SECRET: ${AZURE_AD_CLIENT_SECRET}
+      AZURE_AD_TENANT_ID: ${AZURE_AD_TENANT_ID}
+
+      # App settings
+      NEXT_PUBLIC_DISTRICT_NAME: ${NEXT_PUBLIC_DISTRICT_NAME:-School District}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+
+      NODE_ENV: production
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/auth/providers || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    name: venchart_postgres_data
+
+networks:
+  default:
+    name: venchart_network
