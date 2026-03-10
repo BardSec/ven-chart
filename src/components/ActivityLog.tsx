@@ -75,11 +75,11 @@ export function ActivityLog({ entries, className }: ActivityLogProps) {
               ) : null}
 
               {/* Notes from metadata */}
-              {(entry.metadata as Record<string, unknown> | null)?.note && (
+              {entry.metadata?.note ? (
                 <p className="mt-1 text-xs text-gray-600 italic">
-                  {(entry.metadata as Record<string, unknown>).note as string}
+                  {String(entry.metadata.note)}
                 </p>
-              )}
+              ) : null}
             </div>
           </div>
         )
