@@ -8,6 +8,7 @@ A production-quality, dockerized web application for tracking vendors, contracts
 
 ## What It Does
 
+
 - **Vendor management** — track vendors with contacts, tags, support info, and procurement notes
 - **Contract management** — track all contracts/subscriptions with renewal dates, notice deadlines, owners, departments, financial details, and compliance status
 - **Renewals dashboard** — priority-bucketed list view (overdue / 30 days / 90 days) and calendar view
