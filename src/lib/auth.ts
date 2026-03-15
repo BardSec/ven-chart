@@ -51,24 +51,29 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       if (!user.email) return false
 
-      // Check if this is the designated admin email
-      const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
-      if (adminEmail && user.email.toLowerCase() === adminEmail) {
-        // Ensure admin role is set
-        await prisma.user.updateMany({
+      try {
+        // Check if this is the designated admin email
+        const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
+        if (adminEmail && user.email.toLowerCase() === adminEmail) {
+          // Ensure admin role is set
+          await prisma.user.updateMany({
+            where: { email: user.email },
+            data: { role: Role.ADMIN },
+          })
+        }
+
+        // Check if user is active (admins can deactivate users)
+        const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
-          data: { role: Role.ADMIN },
+          select: { isActive: true },
         })
-      }
 
-      // Check if user is active (admins can deactivate users)
-      const existingUser = await prisma.user.findUnique({
-        where: { email: user.email },
-        select: { isActive: true },
-      })
-
-      if (existingUser && !existingUser.isActive) {
-        // User has been deactivated
+        if (existingUser && !existingUser.isActive) {
+          // User has been deactivated
+          return false
+        }
+      } catch (err) {
+        console.error('[auth] signIn callback error', err)
         return false
       }
 
@@ -83,18 +88,22 @@ export const authOptions: NextAuthOptions = {
 
   events: {
     async createUser({ user }) {
-      // New user created — log it
-      await prisma.activityLog.create({
-        data: {
-          entityType: 'user',
-          entityId: user.id,
-          entityName: user.email ?? 'Unknown',
-          userEmail: user.email,
-          userName: user.name ?? user.email,
-          action: 'created',
-          metadata: { note: 'User account created via Microsoft SSO' },
-        },
-      })
+      // New user created — log it (non-blocking: never let this crash sign-in)
+      try {
+        await prisma.activityLog.create({
+          data: {
+            entityType: 'user',
+            entityId: user.id,
+            entityName: user.email ?? 'Unknown',
+            userEmail: user.email,
+            userName: user.name ?? user.email,
+            action: 'created',
+            metadata: { note: 'User account created via Microsoft SSO' },
+          },
+        })
+      } catch (err) {
+        console.error('[auth] createUser event: failed to write activity log', err)
+      }
     },
   },
 }
