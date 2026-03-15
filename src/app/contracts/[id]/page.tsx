@@ -366,6 +366,10 @@ export default function ContractDetailPage() {
                   <dd className="font-medium">{contract.cost != null ? formatCurrency(contract.cost) : '—'}</dd>
                   <dt className="text-gray-500">Total Contract Value</dt>
                   <dd className="font-medium">{contract.totalContractValue != null ? formatCurrency(contract.totalContractValue) : '—'}</dd>
+                  <dt className="text-gray-500">Number of Licenses</dt>
+                  <dd className="font-medium">{contract.licenseCount != null ? contract.licenseCount.toLocaleString() : '—'}</dd>
+                  <dt className="text-gray-500">Per License Cost</dt>
+                  <dd className="font-medium">{contract.perLicenseCost != null ? formatCurrency(contract.perLicenseCost) : '—'}</dd>
                   <dt className="text-gray-500">Funding Source</dt>
                   <dd className="font-medium">{contract.fundingSource ?? '—'}</dd>
                   <dt className="text-gray-500">Budget / Account Code</dt>
@@ -376,6 +380,8 @@ export default function ContractDetailPage() {
                   <dd className="font-medium">{contract.poNumber ?? '—'}</dd>
                   <dt className="text-gray-500">Invoice Reference</dt>
                   <dd className="font-medium">{contract.invoiceReference ?? '—'}</dd>
+                  <dt className="text-gray-500">Software Manager</dt>
+                  <dd className="font-medium">{contract.softwareManager ?? '—'}</dd>
                 </dl>
               </div>
             )}

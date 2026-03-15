@@ -154,6 +154,8 @@ model Contract {
   // Financial
   cost               Decimal? @db.Decimal(12, 2)
   totalContractValue Decimal? @db.Decimal(12, 2)
+  licenseCount       Int?
+  perLicenseCost     Decimal? @db.Decimal(12, 2)
   fundingSource      String?  // "General Fund" | "Title I" | "ESSER" | "E-Rate" | "Grant"
   budgetCode         String?
 
@@ -161,6 +163,7 @@ model Contract {
   procurementMethod String? // "bid" | "sole_source" | "cooperative_contract" | "piggyback" | "direct_purchase" | "state_contract"
   poNumber          String?
   invoiceReference  String?
+  softwareManager   String?
 
   // Ownership
   internalOwner String?

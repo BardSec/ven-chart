@@ -57,11 +57,14 @@ export interface Contract {
   autoRenew: boolean
   cost: number | null
   totalContractValue: number | null
+  licenseCount: number | null
+  perLicenseCost: number | null
   fundingSource: string | null
   budgetCode: string | null
   procurementMethod: string | null
   poNumber: string | null
   invoiceReference: string | null
+  softwareManager: string | null
   internalOwner: string | null
   backupOwner: string | null
   department: string | null

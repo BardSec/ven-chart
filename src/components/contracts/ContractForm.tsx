@@ -46,11 +46,14 @@ interface FormState {
   autoRenew: boolean
   cost: string
   totalContractValue: string
+  licenseCount: string
+  perLicenseCost: string
   fundingSource: string
   budgetCode: string
   procurementMethod: string
   poNumber: string
   invoiceReference: string
+  softwareManager: string
   internalOwner: string
   backupOwner: string
   department: string
@@ -86,11 +89,14 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
     autoRenew: contract?.autoRenew ?? false,
     cost: contract?.cost?.toString() ?? '',
     totalContractValue: contract?.totalContractValue?.toString() ?? '',
+    licenseCount: contract?.licenseCount?.toString() ?? '',
+    perLicenseCost: contract?.perLicenseCost?.toString() ?? '',
     fundingSource: contract?.fundingSource ?? '',
     budgetCode: contract?.budgetCode ?? '',
     procurementMethod: contract?.procurementMethod ?? '',
     poNumber: contract?.poNumber ?? '',
     invoiceReference: contract?.invoiceReference ?? '',
+    softwareManager: contract?.softwareManager ?? '',
     internalOwner: contract?.internalOwner ?? '',
     backupOwner: contract?.backupOwner ?? '',
     department: contract?.department ?? '',
@@ -132,6 +138,8 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
         ...form,
         cost: form.cost ? parseFloat(form.cost) : null,
         totalContractValue: form.totalContractValue ? parseFloat(form.totalContractValue) : null,
+        licenseCount: form.licenseCount ? parseInt(form.licenseCount, 10) : null,
+        perLicenseCost: form.perLicenseCost ? parseFloat(form.perLicenseCost) : null,
         startDate: form.startDate || null,
         renewalDate: form.renewalDate || null,
         noticeDeadline: form.noticeDeadline || null,
@@ -145,6 +153,7 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
         procurementMethod: form.procurementMethod || null,
         poNumber: form.poNumber || null,
         invoiceReference: form.invoiceReference || null,
+        softwareManager: form.softwareManager || null,
         internalOwner: form.internalOwner || null,
         backupOwner: form.backupOwner || null,
         department: form.department || null,
@@ -307,6 +316,28 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
               placeholder="0.00"
             />
           </FieldWrapper>
+          <FieldWrapper label="Number of Licenses (if applicable)" htmlFor="c-licenses">
+            <Input
+              id="c-licenses"
+              type="number"
+              min="0"
+              step="1"
+              value={form.licenseCount}
+              onChange={(e) => set('licenseCount')(e.target.value)}
+              placeholder="e.g. 500"
+            />
+          </FieldWrapper>
+          <FieldWrapper label="Per License Cost" htmlFor="c-perlicense">
+            <Input
+              id="c-perlicense"
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.perLicenseCost}
+              onChange={(e) => set('perLicenseCost')(e.target.value)}
+              placeholder="0.00"
+            />
+          </FieldWrapper>
           <FieldWrapper label="Funding Source" htmlFor="c-fund">
             <Select id="c-fund" value={form.fundingSource} onChange={(e) => set('fundingSource')(e.target.value)} placeholder="Select source...">
               {FUNDING_SOURCES.map((f) => <option key={f} value={f}>{f}</option>)}
@@ -332,6 +363,9 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
           </FieldWrapper>
           <FieldWrapper label="Invoice Reference" htmlFor="c-inv">
             <Input id="c-inv" value={form.invoiceReference} onChange={(e) => set('invoiceReference')(e.target.value)} placeholder="Invoice # or reference" />
+          </FieldWrapper>
+          <FieldWrapper label="Software Manager" htmlFor="c-swmgr" hint="District contact responsible for processing renewal">
+            <Input id="c-swmgr" value={form.softwareManager} onChange={(e) => set('softwareManager')(e.target.value)} placeholder="Name or email" />
           </FieldWrapper>
         </div>
       </section>
