@@ -1,4 +1,4 @@
-// POST /api/attachments — create attachment (URL link)
+// POST /api/attachments — create attachment (URL link or uploaded file)
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
@@ -44,6 +44,8 @@ export async function POST(request: NextRequest) {
       title: data.title,
       url: data.url,
       fileName: data.fileName ?? null,
+      fileSize: data.fileSize ?? null,
+      mimeType: data.mimeType ?? null,
       vendorId: data.parentType === 'vendor' ? data.parentId : null,
       contractId: data.parentType === 'contract' ? data.parentId : null,
     },

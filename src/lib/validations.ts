@@ -80,6 +80,8 @@ export const attachmentSchema = z.object({
   title: z.string().min(1, 'Title is required').max(300),
   url: z.string().url('Must be a valid URL').max(2000),
   fileName: z.string().max(500).nullable().optional(),
+  fileSize: z.number().int().positive().nullable().optional(),
+  mimeType: z.string().max(200).nullable().optional(),
 })
 
 export type AttachmentFormData = z.infer<typeof attachmentSchema>
