@@ -26,25 +26,34 @@ export const authOptions: NextAuthOptions = {
   ],
 
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
     maxAge: 8 * 60 * 60, // 8 hours — typical school work day
   },
 
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        // Fetch the user's role and department from our DB
+    async jwt({ token, user }) {
+      // On initial sign-in, load user data from DB into the token
+      if (user) {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
           select: { id: true, role: true, department: true, isActive: true },
         })
-
         if (dbUser) {
-          session.user.id = dbUser.id
-          session.user.role = dbUser.role
-          session.user.department = dbUser.department
-          session.user.isActive = dbUser.isActive
+          token.id = dbUser.id
+          token.role = dbUser.role
+          token.department = dbUser.department
+          token.isActive = dbUser.isActive
         }
+      }
+      return token
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.role = token.role as Role
+        session.user.department = token.department as string | null
+        session.user.isActive = token.isActive as boolean
       }
       return session
     },
@@ -109,7 +118,7 @@ export const authOptions: NextAuthOptions = {
   },
 }
 
-// Type augmentation for next-auth session
+// Type augmentation for next-auth session and JWT
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -121,5 +130,14 @@ declare module 'next-auth' {
       department: string | null
       isActive: boolean
     }
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string
+    role: Role
+    department: string | null
+    isActive: boolean
   }
 }
