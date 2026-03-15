@@ -1,6 +1,6 @@
 // S3-compatible client for Cloudflare R2 file storage
 
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 
@@ -27,6 +27,15 @@ function getClient(): S3Client {
     })
   }
   return _client
+}
+
+/** Generate a presigned GET URL. Expires in 1 hour. */
+export async function createPresignedDownloadUrl(key: string): Promise<string> {
+  const command = new GetObjectCommand({
+    Bucket: process.env.S3_BUCKET_NAME!,
+    Key: key,
+  })
+  return getSignedUrl(getClient(), command, { expiresIn: 3600 })
 }
 
 /** Generate a presigned PUT URL. Expires in 5 minutes. */

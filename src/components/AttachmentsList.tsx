@@ -207,7 +207,7 @@ export function AttachmentsList({
               )}
               <div className="min-w-0 flex-1">
                 <a
-                  href={att.url}
+                  href={att.fileName ? `/api/attachments/${att.id}/file` : att.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium text-brand-600 hover:underline flex items-center gap-1"
