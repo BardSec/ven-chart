@@ -364,9 +364,6 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
           <FieldWrapper label="Invoice Reference" htmlFor="c-inv">
             <Input id="c-inv" value={form.invoiceReference} onChange={(e) => set('invoiceReference')(e.target.value)} placeholder="Invoice # or reference" />
           </FieldWrapper>
-          <FieldWrapper label="Software Manager" htmlFor="c-swmgr" hint="District contact responsible for processing renewal">
-            <Input id="c-swmgr" value={form.softwareManager} onChange={(e) => set('softwareManager')(e.target.value)} placeholder="Name or email" />
-          </FieldWrapper>
         </div>
       </section>
 
@@ -379,6 +376,9 @@ export function ContractForm({ contract, vendors, defaultVendorId, onSuccess, on
           </FieldWrapper>
           <FieldWrapper label="Backup Owner" htmlFor="c-backup">
             <Input id="c-backup" value={form.backupOwner} onChange={(e) => set('backupOwner')(e.target.value)} placeholder="Secondary contact" />
+          </FieldWrapper>
+          <FieldWrapper label="Software Manager" htmlFor="c-swmgr" hint="District contact responsible for processing renewal">
+            <Input id="c-swmgr" value={form.softwareManager} onChange={(e) => set('softwareManager')(e.target.value)} placeholder="Name or email" />
           </FieldWrapper>
           <FieldWrapper label="Department" htmlFor="c-dept">
             <Select id="c-dept" value={form.department} onChange={(e) => set('department')(e.target.value)} placeholder="Select department...">

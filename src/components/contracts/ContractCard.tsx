@@ -96,6 +96,13 @@ export function ContractCard({ contract, showVendor = true }: ContractCardProps)
           </div>
         )}
 
+        {contract.softwareManager && (
+          <div className="flex items-center gap-1">
+            <span className="text-gray-400">SW Mgr:</span>
+            <span className="text-gray-700 truncate">{contract.softwareManager}</span>
+          </div>
+        )}
+
         {contract.department && (
           <div className="flex items-center gap-1">
             <span className="text-gray-400">Dept:</span>

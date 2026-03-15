@@ -333,6 +333,8 @@ export default function ContractDetailPage() {
                     <dd className="font-medium text-gray-900">{contract.internalOwner ?? <span className="text-red-500 text-xs">⚠ Not set</span>}</dd>
                     <dt className="text-gray-500">Backup Owner</dt>
                     <dd className="font-medium text-gray-900">{contract.backupOwner ?? '—'}</dd>
+                    <dt className="text-gray-500">Software Manager</dt>
+                    <dd className="font-medium text-gray-900">{contract.softwareManager ?? '—'}</dd>
                   </dl>
                 </div>
 
