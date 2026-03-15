@@ -8,6 +8,7 @@ import { Role } from '@prisma/client'
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  debug: true,
 
   providers: [
     AzureADProvider({
