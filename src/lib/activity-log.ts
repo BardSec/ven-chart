@@ -54,7 +54,7 @@ export function computeDiff(
   const diffBefore: Record<string, unknown> = {}
   const diffAfter: Record<string, unknown> = {}
 
-  const allKeys = new Set([...Object.keys(before), ...Object.keys(after)])
+  const allKeys = Array.from(new Set([...Object.keys(before), ...Object.keys(after)]))
 
   for (const key of allKeys) {
     const beforeVal = before[key]
