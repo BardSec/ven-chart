@@ -62,7 +62,7 @@ export function canEditRecord(
     const userEmail = user.email?.toLowerCase()
     const userName = user.name?.toLowerCase()
 
-    return (
+    return !!(
       (dept && userDept && dept === userDept) ||
       (owner && userEmail && owner.includes(userEmail)) ||
       (owner && userName && owner.includes(userName))
