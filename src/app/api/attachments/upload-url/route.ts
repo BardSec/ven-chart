@@ -21,7 +21,12 @@ export async function POST(request: NextRequest) {
   }
 
   if (!s3Enabled) {
-    return NextResponse.json({ error: 'File storage is not configured' }, { status: 503 })
+    const missing = ['S3_ENDPOINT', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY', 'S3_BUCKET_NAME']
+      .filter((k) => !process.env[k])
+    return NextResponse.json(
+      { error: 'File storage is not configured', missing },
+      { status: 503 },
+    )
   }
 
   let body: unknown
