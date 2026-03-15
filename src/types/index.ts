@@ -290,7 +290,8 @@ export const FUNDING_SOURCES = [
 ] as const
 
 export const DEPARTMENTS = [
-  'Technology',
+  'Technology - Operations',
+  'Technology - Instructional',
   'Curriculum & Instruction',
   'Human Resources',
   'Finance',
