@@ -2,13 +2,12 @@
 
 import { NextAuthOptions } from 'next-auth'
 import AzureADProvider from 'next-auth/providers/azure-ad'
-import { PrismaAdapter } from '@auth/prisma-adapter'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from './prisma'
 import { Role } from '@prisma/client'
-import type { Adapter } from 'next-auth/adapters'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: PrismaAdapter(prisma),
 
   providers: [
     AzureADProvider({
