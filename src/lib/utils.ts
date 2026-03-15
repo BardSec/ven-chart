@@ -234,7 +234,7 @@ export function isValidUrl(url: string): boolean {
 // =============================================================================
 
 export function unique<T>(arr: T[]): T[] {
-  return [...new Set(arr)]
+  return Array.from(new Set(arr))
 }
 
 export function sortBy<T>(arr: T[], key: keyof T, direction: 'asc' | 'desc' = 'asc'): T[] {
